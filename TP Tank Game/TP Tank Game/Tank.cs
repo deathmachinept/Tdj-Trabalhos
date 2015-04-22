@@ -26,7 +26,8 @@ namespace TP_Tank_Game
             this.turret = new Sprite(content, "tank_turret");
             this.turret.SetRotation((float)Math.PI / 4);
             this.EnableCollisions();
-            turret.origem = new Vector2(turret.origem.X, delta);
+            turret.origem.Y = delta;
+            turret.origem = new Vector2(turret.origem.X, turret.origem.Y);
             velocidadeMax = 0.05f;
             velocidade = 0f;
             velocidadePositiva = 0;
@@ -51,7 +52,7 @@ namespace TP_Tank_Game
             Point mpos = mstate.Position; // posição em pixeis
             KeyboardState state = Keyboard.GetState();
 
-            //this.SetPosition(origem);
+
             Vector2 tpos = Camera.WorldPoint2Pixels(position);
             float a = (float)mpos.Y - tpos.Y;
             float l = (float)mpos.X - tpos.X;
@@ -159,6 +160,7 @@ namespace TP_Tank_Game
 
 
             Vector2 posturret = new Vector2 (position.X,position.Y - (delta-pixelSize.Y/2)*size.Y/pixelSize.Y); // size tamanho no mundo, pixelsize tamanho real da sprite
+            
             turret.SetPosition(posturret);
             Camera.SetTarget(this.position);
             turret.Update(gameTime);
