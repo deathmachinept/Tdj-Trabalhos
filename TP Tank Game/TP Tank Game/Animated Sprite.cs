@@ -27,7 +27,7 @@ namespace TP_Tank_Game
             this.pixelSize.Y = this.pixelSize.Y / nrows;
 
             this.size = new Vector2(1f, (float)pixelSize.Y / (float)pixelSize.X);
-
+            this.origem = this.pixelSize * 0.5f;
             this.currentFrame = Point.Zero;
             Loop = true;
         }
