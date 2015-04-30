@@ -10,7 +10,7 @@ namespace TP_Tank_Game
         class Bullet : Sprite
         {
             public float maxDistance = 2;
-            public float velocity = 4;
+            public float velocity = 9;
             private Vector2 sourcePosition;
             private Vector2 direction;
 
@@ -27,29 +27,30 @@ namespace TP_Tank_Game
                                              (float)Math.Cos(rotation));
             }
 
-            public override void Update(GameTime gameTime)
-            {
+            public override void Update(GameTime gameTime){
+
                 position = position + direction * velocity *
                       (float)gameTime.ElapsedGameTime.TotalSeconds;
-                Console.WriteLine("Bala está no ar");
-                Console.WriteLine(position);
+
                 if ((position - sourcePosition).Length() > maxDistance)
                 {
-                    Console.WriteLine("Explosão da bala na maxdistance!");
-                    Console.WriteLine(position);
+
                     this.Destroy();
                 }
 
 
                 base.Update(gameTime);
             }
+
+           /* public override void changeRange(int valor)
+            {
+                maxDistance = valor;
+            }*/
             public override void Destroy(){
                 Animated_Sprite explosion;
                 explosion = new Animated_Sprite(cManager, "explosion",1,12);
                 scene.AddSprite(explosion);
                 explosion.SetPosition(this.position);
-                Console.WriteLine("this posição1");
-                Console.WriteLine(this.position);
                 explosion.Scale(.3f);
                 explosion.Loop = false;
                 base.Destroy();

@@ -20,6 +20,11 @@ namespace TP_Tank_Game
         private float reverseMax;
         private float velocidade;
         private int velocidadePositiva;
+        private float velocidadeEsq;
+        private float turnValue;
+        private float tankRot;
+        //private float pos
+        private Vector2 tankDirection;
         public Tank(ContentManager content)
             : base(content, "tank_body")
         {
@@ -31,7 +36,10 @@ namespace TP_Tank_Game
             velocidadeMax = 0.05f;
             velocidade = 0f;
             velocidadePositiva = 0;
+            turnValue = 0f;
             reverseMax = -0.02f;
+            this.tankDirection = new Vector2((float)Math.Sin(tankRot),
+                             (float)Math.Cos(tankRot));
         }
         public override void Draw(GameTime gameTime)
         {
@@ -54,37 +62,39 @@ namespace TP_Tank_Game
 
 
             Vector2 tpos = Camera.WorldPoint2Pixels(position);
-            float a = (float)mpos.Y - tpos.Y;
+            float a = (float)mpos.Y - tpos.Y; // busca a posição Y(coordenadas da camara Pixeis) do rato e subtrai a posição do tank(camara centro)
             float l = (float)mpos.X - tpos.X;
+
+
             float rot = (float)Math.Atan2(a, l);
             rot += (float)Math.PI / 2f;
+
             turret.SetRotation(rot);
+
 
             fireCounter += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (fireCounter >= fireInterval &&
                 mstate.LeftButton == ButtonState.Pressed)
             {
                 Vector2 pos = this.position
-                         + new Vector2((float)Math.Sin(rot) * size.Y / 2, (float)Math.Cos(rot) * size.Y / 2);
-                Console.WriteLine(pos);
-                Console.WriteLine("xxPosicao dentro do disparo inicialxx");
+                         + new Vector2((float)Math.Sin(rot) * size.Y / 2, (float)Math.Cos(rot) * size.Y / 2); //?
                 Bullet bullet = new Bullet(cManager, pos, rot);
                 scene.AddSprite(bullet);
                 fireCounter = 0f;
             }
-            /*
+            
             mgfireCounter += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (mgfireCounter >= mgfireInterval &&
                 state.IsKeyDown(Keys.Space))
             {
                 Vector2 mgpos = this.position
-                         + new Vector2((float)Math.Sin(rot) * size.Y / 2,
-                                       (float)Math.Cos(rot) * size.Y / 2);
+                         + new Vector2((float)Math.Sin(rot) * size.Y / 4,
+                                       (float)Math.Cos(rot) * size.Y / 4)*/;
                 Bullet mgbullet = new Bullet(cManager, mgpos, rot);
-                mgbullet.velocity = 4;
+                mgbullet.velocity = 5;
                 scene.AddSprite(mgbullet);
                 mgfireCounter = 0f;
-            }*/
+            }
 
 
 
@@ -108,7 +118,6 @@ namespace TP_Tank_Game
                 {
                     this.position.Y += -0.01f;
                 }*/
-                this.position.Y += velocidade;
             }
             else if (state.IsKeyDown(Keys.S))
             {
@@ -125,7 +134,6 @@ namespace TP_Tank_Game
                         velocidade = reverseMax;
                     }
                 }
-                this.position.Y += velocidade;
             }
             if ((state.IsKeyUp(Keys.W)) && (state.IsKeyUp(Keys.S))) // nao input de velocidade pelo jogador
             {
@@ -149,7 +157,24 @@ namespace TP_Tank_Game
                         velocidadePositiva = 0;
                     }
                 }
-                this.position.Y += velocidade;
+                
+            }
+            if (state.IsKeyDown(Keys.A))
+            {
+                
+                tankRot += -0.01f;//valor de incremento
+                turnValue += -0.0001f;
+                this.SetRotation(tankRot);
+                this.tankDirection = new Vector2((float)Math.Sin(tankRot),
+                 (float)Math.Cos(tankRot));
+            }
+            if (state.IsKeyDown(Keys.D))
+            {
+                tankRot += 0.01f;//valor de incremento
+                turnValue += 0.0001f;
+                this.SetRotation(tankRot);
+                this.tankDirection = new Vector2((float)Math.Sin(tankRot),
+                 (float)Math.Cos(tankRot));
             }
                /* Sprite other;
                 Vector2 colPosition;
@@ -157,11 +182,13 @@ namespace TP_Tank_Game
                 {
                     this.position.Y += 0.01f;
                 }*/
+            this.position = this.position + tankDirection * velocidade;
+            //this.position.Y += velocidade;
+            Vector2 posturret = new Vector2(position.X, position.Y - (delta - pixelSize.Y / 2) * size.Y / pixelSize.Y); // size tamanho no mundo, pixelsize tamanho real da sprite
 
-
-            Vector2 posturret = new Vector2 (position.X,position.Y - (delta-pixelSize.Y/2)*size.Y/pixelSize.Y); // size tamanho no mundo, pixelsize tamanho real da sprite
-            
             turret.SetPosition(posturret);
+
+
             Camera.SetTarget(this.position);
             turret.Update(gameTime);
             base.Update(gameTime);

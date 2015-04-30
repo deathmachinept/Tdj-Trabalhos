@@ -18,20 +18,24 @@ namespace TP_Tank_Game
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Scene scene;
+        const int kWindowWidth = 900;
+        const int kWindowHeight = 680;
         public Game1()
             : base()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics.PreferredBackBufferWidth = kWindowWidth;
+            graphics.PreferredBackBufferHeight = kWindowHeight;
         }
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferHeight = 700;
+            /*graphics.PreferredBackBufferHeight = 700;
             graphics.PreferredBackBufferWidth = 600;
-            graphics.ApplyChanges();
+            graphics.ApplyChanges();*/
             Camera.SetGraphicsDeviceManager(graphics);
             Camera.SetTarget(Vector2.Zero);
-            Camera.SetWorldWidth(5);
+            Camera.SetWorldWidth(9);
             base.Initialize();
         }
         protected override void LoadContent()
@@ -54,6 +58,21 @@ namespace TP_Tank_Game
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.LeftAlt) && Keyboard.GetState().IsKeyDown(Keys.Enter))
+            {
+                if (!graphics.IsFullScreen)
+                {
+                    graphics.IsFullScreen = true;
+                    graphics.ApplyChanges();
+                }
+                else if (graphics.IsFullScreen)
+                {
+                    graphics.IsFullScreen = false;
+                    graphics.ApplyChanges();
+                }
+            }
+
             scene.Update(gameTime);
             base.Update(gameTime);
         }
