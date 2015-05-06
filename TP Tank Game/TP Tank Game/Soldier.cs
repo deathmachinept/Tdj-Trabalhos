@@ -9,7 +9,7 @@ namespace TP_Tank_Game
     class Soldier : Animated_Sprite
     {
         public Soldier(ContentManager content)
-            : base(content, "soldado", 1, 3)
+            : base(content, "Prone Soldier", 1, 4)
         {
             this.Scl(0.2f);
             this.EnableCollisions();

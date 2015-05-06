@@ -32,7 +32,7 @@ namespace TP_Tank_Game
                 position = position + direction * velocity *
                       (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                if ((position - sourcePosition).Length() > maxDistance)
+                if ((position - sourcePosition).Length() > maxDistance) 
                 {
 
                     this.Destroy();

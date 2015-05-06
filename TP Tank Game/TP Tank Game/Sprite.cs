@@ -11,11 +11,13 @@ namespace TP_Tank_Game
     class Sprite
     {
         public bool hasCollisions { protected set; get; }
+
         protected Texture2D image;
-        protected Vector2 position; // posição no mundo virtual
+        public Vector2 position; // posição no mundo virtual
         protected float radius; // raio da bounding box
         protected Vector2 size;
         public Vector2 origem;
+        public Vector2 centroRot;
         protected float rotation;
         protected Scene scene;
         protected Vector2 pixelSize; // tamanho da sprite em pixeis, para uso nas animações
@@ -33,6 +35,7 @@ namespace TP_Tank_Game
             this.pixelSize = new Vector2(image.Width, image.Height);
             this.size = new Vector2(1f, (float)image.Height / (float)image.Width); //?
             this.origem = new Vector2(pixelSize.X / 2, pixelSize.Y / 2); // centro da imagem em pixeis
+            //this.centroRot = new Vector2(pixelSize.X / 2, pixelSize.Y / 2);
         }
 
         public bool collidesWidth(Sprite other, out Vector2 collisionPoint)
@@ -42,6 +45,7 @@ namespace TP_Tank_Game
             if (!other.hasCollisions) return false;
 
             float distance = (this.position - other.position).Length();
+
             if ( distance > this.radius + other.radius) return false;
 
             return this.PixelTouches(other,out collisionPoint);
@@ -77,8 +81,10 @@ namespace TP_Tank_Game
             Vector2 delta = p - position;
             float i = delta.X * pixelSize.X / size.X; // regra de 3 simples
             float j = delta.Y * pixelSize.Y / size.Y;
+
             i += pixelSize.X * 0.5f;
             j = pixelSize.Y * 0.5f-j;
+
             return new Vector2(i, j);
         }
 

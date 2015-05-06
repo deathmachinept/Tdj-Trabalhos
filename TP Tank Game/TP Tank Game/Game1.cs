@@ -18,8 +18,8 @@ namespace TP_Tank_Game
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Scene scene;
-        const int kWindowWidth = 900;
-        const int kWindowHeight = 680;
+        private int kWindowWidth = 900;
+        private int kWindowHeight = 680;
         public Game1()
             : base()
         {
@@ -35,7 +35,7 @@ namespace TP_Tank_Game
             graphics.ApplyChanges();*/
             Camera.SetGraphicsDeviceManager(graphics);
             Camera.SetTarget(Vector2.Zero);
-            Camera.SetWorldWidth(9);
+            Camera.SetWorldWidth(7);
             base.Initialize();
         }
         protected override void LoadContent()
@@ -44,9 +44,9 @@ namespace TP_Tank_Game
             scene = new Scene(spriteBatch);
 
            scene.AddSprite(
-           new Sprite(Content, "sand2").Scl(Camera.worldWidth).
+           new Sprite(Content, "sand").Scl(Camera.worldWidth).
                     At(new Vector2(0f, 480 * Camera.worldWidth / 600)));
-           scene.AddSprite(new Tank(Content));
+           scene.AddSprite(new Tank(Content).Scl(1.2f));
            scene.AddSprite(new Soldier(Content).At(new Vector2(0,2.5f)));
         }
         protected override void UnloadContent()
