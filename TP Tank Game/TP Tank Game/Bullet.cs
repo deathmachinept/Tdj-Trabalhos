@@ -16,13 +16,14 @@ namespace TP_Tank_Game
 
             public Bullet(ContentManager cManager,
                           Vector2 sourcePosition,
-                          float rotation)
+                          float rotation, float maxDistance)
                 : base(cManager, "bullet")
             {
                 this.position = sourcePosition; //11px no turret
                 this.sourcePosition = sourcePosition;
                 this.rotation = rotation;
                 this.Scale(0.05f);
+                this.maxDistance = maxDistance;
                 this.direction = new Vector2((float)Math.Sin(rotation),
                                              (float)Math.Cos(rotation));
             }
@@ -32,9 +33,13 @@ namespace TP_Tank_Game
                 position = position + direction * velocity *
                       (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+                
+
                 if ((position - sourcePosition).Length() > maxDistance) 
                 {
-
+                    
+                    float valor = (position - sourcePosition).Length();
+                    Console.WriteLine(valor);
                     this.Destroy();
                 }
 
@@ -47,13 +52,17 @@ namespace TP_Tank_Game
                 maxDistance = valor;
             }*/
             public override void Destroy(){
-                Animated_Sprite explosion;
-                explosion = new Animated_Sprite(cManager, "explosion",1,12);
+                Animated_Sprite explosion;// adicionar loops
+
+                explosion = new Animated_Sprite(cManager, "BulletHit", 1, 14);
                 scene.AddSprite(explosion);
                 explosion.SetPosition(this.position);
-                explosion.Scale(.3f);
+                explosion.Scale(0.5f);
+                explosion.SetRotation(rotation);
                 explosion.Loop = false;
+                
                 base.Destroy();
+                
             }
         }
     }

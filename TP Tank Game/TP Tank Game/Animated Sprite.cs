@@ -14,8 +14,11 @@ namespace TP_Tank_Game
     {
         private int ncols, nrows;
         private Point currentFrame;
-        private float animationInterval = 1f / 10f;
+        private float animationInterval = 1f / 12f;
         private float animationTimer = 0f;
+        public int numLoops;
+        private int contador;
+        
         public bool Loop { get; set; }
 
         public Animated_Sprite(ContentManager contents, String fileName, int nrows, int ncols)
@@ -29,7 +32,8 @@ namespace TP_Tank_Game
             this.size = new Vector2(1f, (float)pixelSize.Y / (float)pixelSize.X);
             this.origem = this.pixelSize * 0.5f;
             this.currentFrame = Point.Zero;
-            Loop = true;
+            this.numLoops = 0;
+            Loop = false;
         }
 
         public void nextFrame()
@@ -47,22 +51,30 @@ namespace TP_Tank_Game
             {
                 currentFrame = Point.Zero;
             }
+            else if (numLoops > 0)
+            {
+                currentFrame = Point.Zero;
+                numLoops--;
+            }
             else
             {
                 Destroy();
             }
         }
 
+
+
         public override void Update(GameTime gameTime)
         {
-            animationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (animationTimer > animationInterval)
-            {
-                animationTimer = 0f;
-                nextFrame();
-            }
-
+                animationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (animationTimer > animationInterval)
+                {
+                    animationTimer = 0f;
+                    if (numLoops >= 0)
+                        nextFrame();
+                    else
+                        Destroy();
+                }
             base.Update(gameTime);
         }
 

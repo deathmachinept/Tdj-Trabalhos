@@ -18,16 +18,17 @@ namespace TP_Tank_Game
             damaged,
             destroyed,
         };
-        private Sprite turret;
+        private Animated_Sprite turret;
         private Sprite gunsight;
+        public bool ai;
         private float fireInterval = 2f;
         private float fireCounter = 0f;
         private float mgfireInterval = 0.1f;
         private float mgfireCounter = 0f;
         private Vector2 centroRotacao;
         private float delta = 199.5f; // distance do turret em relaçao ao tank em pixeis
-        private float deltaX = 128f;
-        private float tankEixo = 148.5f;
+        private float deltaX = 129f;
+        private float tankEixo = 127f;
         private Vector2 centroSprite;
         private float velocidadeMax;
         private float reverseMax;
@@ -37,9 +38,12 @@ namespace TP_Tank_Game
         private float turnValue;
         private float tankRot;
         private float distancia;
+        private float distanciaTurret;
         private int municaoAP;
         private int municaoHE;
         private int municaoMG;
+        private float range;
+        private Vector2 pos;
         Vector2 posicaofinal;
         EngineStatus status;
 
@@ -47,36 +51,43 @@ namespace TP_Tank_Game
         public Tank(ContentManager content)
             : base(content, "Tiger I 256")
         {
-            this.turret = new Sprite(content, "Tiger Turret 256");
-            //this.gunsight = new Sprite(content, "Tiger GunSight-01");
+            
+            this.turret = new Animated_Sprite(cManager, "TurretFire Ani", 1, 6);
             this.turret.SetRotation((float)Math.PI / 4);
-           // this.gunsight.SetRotation((float)Math.PI / 4);
+            this.turret.Loop = false;
+            this.turret.Scl(1.4f);
+            this.gunsight = new Sprite(content, "Tiger GunSight-01");
+            this.gunsight.SetRotation((float)Math.PI / 4);
             this.EnableCollisions();
             centroRotacao = new Vector2(deltaX, delta); // posição final por onde deverá ser feita a rotação
-            centroSprite = turret.origem; // centro da sprite 128 pixeis
             turret.origem = centroRotacao; // mudo a origem do turret para ser feita sobre o ponto real de rotação
             velocidadeMax = 0.05f;
             velocidade = 0f;
             velocidadePositiva = 0;
             turnValue = 0f;
             reverseMax = -0.02f;
+            range = 2;
             municaoAP = 40;
             municaoHE = 20;
             municaoHE = 800;
+            ai = true;
+
             this.tankDirection = new Vector2((float)Math.Sin(tankRot),
                              (float)Math.Cos(tankRot));
             distancia = this.origem.Y - tankEixo;
-            status = EngineStatus.on;
+            status = EngineStatus.off;
         }
         public override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);//porque este base.draw
             turret.Draw(gameTime);
+            gunsight.Draw(gameTime);
         }
         public override void SetScene(Scene s)
         {
             this.scene = s;
             turret.SetScene(s);
+            gunsight.SetScene(s);
         }
 
 
@@ -86,43 +97,62 @@ namespace TP_Tank_Game
             MouseState mstate = Mouse.GetState();
             Point mpos = mstate.Position; // posição em pixeis
             KeyboardState state = Keyboard.GetState();
-
-
+            int mousevalue = mstate.ScrollWheelValue;
+            
             Vector2 tpos = Camera.WorldPoint2Pixels(position);
             float a = (float)mpos.Y - tpos.Y; // busca a posição Y(coordenadas da camara Pixeis) do rato e subtrai a posição do tank(camara centro)
             float l = (float)mpos.X - tpos.X;
-
+            
 
             float rot = (float)Math.Atan2(a, l);
             rot += (float)Math.PI / 2f;
 
             turret.SetRotation(rot);
-
+            gunsight.SetRotation(rot);
+            gunsight.SetPosition(this.position + new Vector2((float)Math.Sin(rot) * (range + 150 / Camera.ratio),
+                (float)Math.Cos(rot) * (range + 150/Camera.ratio)));
+            
+            
             fireCounter += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (fireCounter >= fireInterval &&
                 mstate.LeftButton == ButtonState.Pressed)
             {
-                Vector2 pos = this.position
-                         + new Vector2((float)Math.Sin(rot) * size.Y / 2, (float)Math.Cos(rot) * size.Y / 2); //?
-                Bullet bullet = new Bullet(cManager, pos, rot);
+                //posicaofinal = new Vector2(-(float)Math.Cos(tankRot - Math.PI / 2) * distancia / Camera.ratio, (float)Math.Sin(tankRot - Math.PI / 2) * distancia / Camera.ratio);
+                this.turret.numLoops = 1;
+                pos = this.turret.position + new Vector2(-(float)Math.Cos(rot - Math.PI / 2) * -150 / Camera.ratio, (float)Math.Sin(rot - Math.PI / 2) * -150 / Camera.ratio);
+                Bullet bullet = new Bullet(cManager, pos, rot,2f);
                 scene.AddSprite(bullet);
                 fireCounter = 0f;
+                
+                
+                //Vector2 pos = new Vector2( (float)Math.Cos(rot - Math.PI/2) * s / Camera.Ratio, -(float)Math.Sin(rot - Math.PI/2) * s / Camera.Ratio);
+                //somar esses catetos à posição
+                //pos += delta;
+                //Para teres uma arma ao lado, se ela nao rodar, é só adicionar ao X e Y o tamanho da arma, e a Y a deslocação da arma em relação ao centro do tanque. Se tiveres rotação, já dá um bocadinho mais de trabalho.
             }
-
+            turret.Loop = false;
             mgfireCounter += (float)gameTime.ElapsedGameTime.TotalSeconds;
              if (mgfireCounter >= mgfireInterval &&
                  state.IsKeyDown(Keys.Space))
              {
-                 Vector2 mgpos = this.position
-                          + new Vector2((float)Math.Sin(rot) * 0.1f,
-                                        (float)Math.Cos(rot) * 0.1f);
-                 Bullet mgbullet = new Bullet(cManager, mgpos, rot);
+                 Vector2 mgpos = this.turret.position;
+                //mgpos.X += 0.1f;
+               // mgpos.Y = mgpos.Y + 0.2f;
+                 
+                 float x1 = 54f * (float)Math.Cos(rot - Math.PI / 2f) / Camera.ratio;
+                 float y1 = 54f * (float)Math.Sin(rot - Math.PI / 2f) / Camera.ratio;
+                 float x2 = 18f * (float)Math.Sin(rot + Math.PI / 2f) / Camera.ratio;
+                 float y2 = 18f * (float)Math.Cos(rot + Math.PI / 2f) / Camera.ratio;
+                 mgpos.X = (mgpos.X + x1+x2);
+                 mgpos.Y = (mgpos.Y + y1+y2);
+
+                 Bullet mgbullet = new Bullet(cManager, mgpos, rot,3f);
                  mgbullet.velocity = 5;
                  scene.AddSprite(mgbullet);
                  mgfireCounter = 0f;
              }
 
-            /*if (state.IsKeyDown(Keys.E) && status == EngineStatus.on)
+            if (state.IsKeyDown(Keys.E) && status == EngineStatus.on)
              {
                      status = EngineStatus.off;
 
@@ -130,7 +160,7 @@ namespace TP_Tank_Game
              else if (state.IsKeyDown(Keys.E) && status == EngineStatus.off)
              {
                  status = EngineStatus.on;
-             }*/
+             }
 
             if (state.IsKeyDown(Keys.W) && status == EngineStatus.on)
                 {
@@ -165,8 +195,9 @@ namespace TP_Tank_Game
                         }
                     }
                 }
+           
 
-                if ((state.IsKeyUp(Keys.W)) && (state.IsKeyUp(Keys.S))) // nao input de velocidade pelo jogador, atrito do terreno
+                if (((state.IsKeyUp(Keys.W)) && (state.IsKeyUp(Keys.S))) || status == EngineStatus.off) // nao input de velocidade pelo jogador, atrito do terreno
                 {
                     if (velocidadePositiva == 1) //Atrito Reduz velocidade positiva
                     { //se a 
@@ -215,18 +246,33 @@ namespace TP_Tank_Game
                 this.position = this.position + tankDirection * velocidade;
                 
                 posicaofinal = new Vector2(-(float)Math.Cos(tankRot - Math.PI / 2) * distancia / Camera.ratio, (float)Math.Sin(tankRot - Math.PI / 2) * distancia / Camera.ratio);
-                Console.WriteLine(distancia);
+                //Console.WriteLine(distancia);
 
-                turret.position = this.position - posicaofinal; 
+                turret.position = this.position - posicaofinal;
+               
+                //Vector2 addgunsight = gunsight.position;
+                //gunsight.position
+                
                 //Vector2 posturret = new Vector2(position.X -(centroRotacao.X - pixelSize.X/2)*size.X/pixelSize.X, position.Y - (centroRotacao.Y - pixelSize.Y / 2) * size.Y / pixelSize.Y); //size tamanho no mundo, pixelsize tamanho real da sprite
-
+                
                 //turret.SetPosition(posturret);
                 turret.Update(gameTime);
-            
-
+                gunsight.Update(gameTime);
             Camera.SetTarget(this.position);
-            
             base.Update(gameTime);
+            
         }
     }
 }
+ // tamanho do canhao (vertical, ja que na horizontal esta centrado)
+                //float s = 56f;
+   // obter posicao onde esta o turret
+               // Vector2 pos = turret.Position;
+  // usar o angulo de rotacao e o tamanho do canhao para calcular o tamanho da deslocacao X e Y (pensa no canhao como sendo a hipotenusa do triangulo de pitagoras, aqui calculo os dois catetos)
+               // Vector2 delta = new Vector2( (float)Math.Cos(rot - Math.PI/2) * s / Camera.Ratio, -(float)Math.Sin(rot - Math.PI/2) * s / Camera.Ratio);
+// somar esses catetos à posição
+               // pos += delta;
+
+// bala sai dessa posicao
+               // CannonBullet bullet = new CannonBullet(content);
+               // bullet.SetPosition(pos);

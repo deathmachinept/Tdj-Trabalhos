@@ -35,7 +35,7 @@ namespace TP_Tank_Game
             graphics.ApplyChanges();*/
             Camera.SetGraphicsDeviceManager(graphics);
             Camera.SetTarget(Vector2.Zero);
-            Camera.SetWorldWidth(7);
+            Camera.SetWorldWidth(8);
             base.Initialize();
         }
         protected override void LoadContent()
@@ -43,11 +43,15 @@ namespace TP_Tank_Game
             spriteBatch = new SpriteBatch(GraphicsDevice);
             scene = new Scene(spriteBatch);
 
-           scene.AddSprite(
+           /*scene.AddSprite(
            new Sprite(Content, "sand").Scl(Camera.worldWidth).
-                    At(new Vector2(0f, 480 * Camera.worldWidth / 600)));
+                    At(new Vector2(0f, 480 * Camera.worldWidth / 600)));*/
+
+           SlidingBackground sand = new SlidingBackground(Content, "sand");
+           scene.AddBackground(sand);
            scene.AddSprite(new Tank(Content).Scl(1.2f));
            scene.AddSprite(new Soldier(Content).At(new Vector2(0,2.5f)));
+           // scene.AddSprite(new gun)
         }
         protected override void UnloadContent()
         {
