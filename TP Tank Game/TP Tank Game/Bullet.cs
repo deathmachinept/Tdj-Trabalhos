@@ -39,7 +39,6 @@ namespace TP_Tank_Game
                 {
                     
                     float valor = (position - sourcePosition).Length();
-                    Console.WriteLine(valor);
                     this.Destroy();
                 }
 
@@ -47,10 +46,7 @@ namespace TP_Tank_Game
                 base.Update(gameTime);
             }
 
-           /* public override void changeRange(int valor)
-            {
-                maxDistance = valor;
-            }*/
+
             public override void Destroy(){
                 Animated_Sprite explosion;// adicionar loops
 
